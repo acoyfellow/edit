@@ -1,12 +1,30 @@
-# edit
+# /edit
 
-`/edit` is a Pi extension for bounded, evidence-backed code changes.
+![A tiny robot checking a code change](assets/edit-robot.png)
 
-The Pi extension is the control surface. A local Elixir runtime uses Jido to coordinate an approved workflow and Jev to judge the proposed edit when a live provider credential is available.
+`/edit` helps Pi make small code changes without taking the keys away from you.
 
-The runtime accepts newline-delimited JSON on standard input and emits one JSON receipt per request. It does not accept ambient credentials other than the configured Jev provider credential.
+It reads a request, shows what it wants to do, asks for your approval, and changes only the files and actions you allowed. Then it checks the result and leaves a receipt.
 
-## Local verification
+## Why use it?
+
+- **You stay in charge.** Nothing changes until you approve the exact request.
+- **Small steps.** The tool can only use the actions you grant it.
+- **Safe paths.** It cannot wander outside the workspace.
+- **Proof after the change.** A check must pass before the run is called successful.
+- **Clear receipts.** Each run records what happened.
+
+## Try it
+
+Install the Pi extension at `~/.pi/agent/extensions/edit.ts`, then reload Pi:
+
+```text
+/edit fixtures/approved_replace_text/request.json fixtures/approved_replace_text/approval.json
+```
+
+The sample changes `draft` to `published` in `note.txt`.
+
+## Check it locally
 
 ```sh
 mix deps.get
@@ -14,26 +32,18 @@ mix test
 bun test
 ```
 
-The full proof requires a live Jev provider credential:
+The full check also asks Jev to review the proposed change:
 
 ```sh
 ./scripts/prove.sh
 ```
 
-The proof refuses to continue when `TYPESAFE_API_KEY` is missing and no `CLOUDFLARE_API_TOKEN` plus `CLOUDFLARE_ACCOUNT_ID` pair is present. It does not substitute fake model output.
+That live check needs an approved Jev provider. If the provider is unavailable, `/edit` stops instead of pretending that a review happened.
 
-## Pi installation
+## What it does not do
 
-The extension is installed at `~/.pi/agent/extensions/edit.ts` during local development. Reload Pi with `/reload` after changing it.
+`/edit` does not make broad changes, skip approval, invent a review, or call a successful run when its check failed.
 
-Use the command with a request and approval fixture:
+## Status
 
-```text
-/edit fixtures/approved_replace_text/request.json fixtures/approved_replace_text/approval.json
-```
-
-The approval digest binds the exact request. The runtime rejects a changed request, unsupported operation, path escape, or failed verification.
-
-## Current boundary
-
-The local fixture proves Jido coordination, bounded file replacement, approval binding, verification, and a receipt. A live Jev judgment and baseline evaluation remain required before release.
+The local checks pass. The live Jev check is published as blocked because the current provider route returned `403`. See [`evals/results-live-blocked.json`](evals/results-live-blocked.json).
