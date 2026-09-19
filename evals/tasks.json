@@ -1,0 +1,8 @@
+[
+  {
+    "id": "replace-text",
+    "prompt": "Change the word draft to published in note.txt. Do not change any other file.",
+    "workspace": "fixtures/approved_replace_text/workspace",
+    "proof": "note.txt equals published\\n"
+  }
+]

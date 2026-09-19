@@ -1,0 +1,9 @@
+/.elixir_ls
+/_build
+/deps
+/.fetch
+/.pi
+/node_modules
+erl_crash.dump
+.env*
+*.log

@@ -1,0 +1,1 @@
+{"version":1,"workspace_root":"fixtures/approved_replace_text/workspace","operations":[{"type":"replace_text","path":"note.txt","expected":"draft\n","replacement":"published\n"}],"verification":{"type":"file_equals","path":"note.txt","expected":"published\n"},"capabilities":["workspace.read","workspace.write"]}
