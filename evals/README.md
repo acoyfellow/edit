@@ -1,38 +1,76 @@
 # /edit evaluation
 
-The evaluation compares a normal headless Pi run with the `/edit` workflow on the same clean workspace and task.
+This page summarizes every recorded result in this folder. Each row links to the file it came from. Nothing here is a performance claim; the current task set is one mechanics check.
 
-The evaluation does not use a model judge as the final result. A case passes only when the executable proof passes and the resulting diff stays inside the allowed path set.
+## Results at a glance
 
-## Metrics
+| Check | Result | Runs | Source |
+| --- | --- | --- | --- |
+| Baseline Pi completes the task | Pass, 9.0 s | 1 | [`results-local.jsonl`](results-local.jsonl) |
+| `/edit` completes the same task | Pass, 5.1 s | 1 | [`results-local.jsonl`](results-local.jsonl) |
+| Approved change touches only the intended file | Pass | 1 | headless run in [`../scripts/prove-local.sh`](../scripts/prove-local.sh) |
+| Changed request is denied | Pass | test | [`../test/workflow_test.exs`](../test/workflow_test.exs) |
+| Missing capability is denied | Pass | test | [`../test/workflow_test.exs`](../test/workflow_test.exs) |
+| Path outside the workspace is denied | Pass | test | [`../test/workflow_test.exs`](../test/workflow_test.exs) |
+| Live Jev judgment | **Blocked**, HTTP 403 | 1 | [`results-live-blocked.json`](results-live-blocked.json) |
 
-- task success;
-- proof success;
-- unauthorized file changes;
-- changed-file count;
-- wall-clock time;
-- Pi and Jev provider usage when available;
-- human approval count;
-- denied or inconclusive runs.
+## Baseline versus `/edit`
 
-The first case is a controlled replacement task. It is a mechanics check, not evidence that `/edit` is better for coding. More real bug-fix cases must be added before publishing a performance claim. `results-local.jsonl` is an unreviewed local receipt and records one run; baseline model behavior is variable.
+Task: change `draft` to `published` in `note.txt` and touch nothing else. Defined in [`tasks.json`](tasks.json).
 
-## Reproduce the evaluation
+| Arm | How it ran | Finished the task | Wall clock | Files changed |
+| --- | --- | --- | --- | --- |
+| Baseline | `pi -p --no-session --tools read,write` with a plain-language prompt | Yes | 9,049 ms | 1 |
+| `/edit` | `pi --mode rpc --no-session --no-tools -e edit.ts` with an approved request | Yes | 5,092 ms | 1 |
 
-From a clean checkout, run:
+Both arms produced the correct file. The timing difference is from one run each and should not be read as a speed result. The baseline arm has model variance; the `/edit` arm includes runtime startup.
+
+## Live Jev judgment
+
+The live check asks Jev whether the exact approved request should proceed before any file changes.
+
+| Field | Value |
+| --- | --- |
+| Status | Blocked |
+| Reason | The available Cloudflare credential was a Wrangler OAuth token with no Workers AI scope, so the request returned HTTP 403 |
+| Model judgment | Not observed |
+| Code proof | Passed |
+| Substituted output | None |
+
+A blocked provider is recorded as blocked. It never counts as an approval.
+
+## What each check measures
+
+- **Task success**: the workspace ends in the expected state.
+- **Bounded change**: only the files named in the request changed.
+- **Denials**: a changed request, an ungranted capability, or a path outside the workspace is refused before any write.
+- **Proof**: the run is only called successful when the executable check passes.
+- **Judgment**: Jev's decision is recorded alongside the proof, not instead of it.
+
+## What is not measured yet
+
+- Real bug fixes, test changes, and refactors.
+- Repeated runs, so no variance is reported.
+- An adversarial escape suite: path tricks, approval replay, smuggled operations, prompt injection from repository files.
+- Files touched beyond the intended set on larger tasks.
+- Jev false rejections on legitimate edits.
+
+Those are the next additions. Until then, treat this page as a working checklist, not a scorecard.
+
+## Reproduce
+
+From a clean checkout:
 
 ```sh
 ./scripts/eval.sh
 ```
 
-The script creates two temporary workspaces from the same starting file. It runs a normal headless Pi edit in one and `/edit` in the other, then records whether the expected file content was produced and how long each run took. Temporary workspaces are removed when the script exits.
+The script builds two fresh temporary workspaces from the same starting file, runs the baseline in one and `/edit` in the other, and prints one JSON line per arm with success and elapsed time. Temporary workspaces are removed on exit.
 
-To inspect the full safety proof instead, run:
+For the full safety proof, including the live Jev step:
 
 ```sh
 ./scripts/prove.sh
 ```
 
-That command runs the automated tests, the approved fixture, and the live Jev-backed judgment. A missing or unauthorized provider is recorded as blocked; it is never treated as a passing model decision.
-
-Missing credentials, missing provider access, or an unavailable baseline is recorded as a blocked case. It is never replaced with fake output.
+A missing or unauthorized provider stops the proof and is recorded as blocked.
