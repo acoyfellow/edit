@@ -1,0 +1,19 @@
+evals/README.md
+  s_caeab02c8e5fb3::t_b332703e3b9391 20-37
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "27d62b3ec1fa045cb112b25096cac909cb10d363",
+  "prompts": {},
+  "sessions": {
+    "s_caeab02c8e5fb3": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a0a511-982d-756e-88e2-0b0ae323d0cb",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Jordan Coeyman <jcoeyman@cloudflare.com>"
+    }
+  }
+}
