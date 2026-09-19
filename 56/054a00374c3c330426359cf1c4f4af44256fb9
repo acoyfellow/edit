@@ -1,0 +1,69 @@
+README.md
+  s_706951c87ffc86::t_bbf430f229082c 1-39
+bun.lock
+  s_bbebff7174806f::t_0bb7264aa2a695 1-64
+config/config.exs
+  s_bbebff7174806f::t_f9e7295fd2a85b 1-17
+evals/results-local.jsonl
+  s_bbebff7174806f::t_9c19359761b092 1-2
+fixtures/approved_replace_text/approval.json
+  s_bbebff7174806f::t_bb2ac384b42fca 1
+fixtures/approved_replace_text/request.json
+  s_706951c87ffc86::t_c70f5999eab298 1
+fixtures/approved_replace_text/workspace/note.txt
+  s_bbebff7174806f::t_b99bd57751049e 1
+lib/edit_runtime/application.ex
+  s_bbebff7174806f::t_47d9212c10f3ad 1-11
+lib/edit_runtime/judgment.ex
+  s_bbebff7174806f::t_99cbef6d1877f0 1-12
+lib/edit_runtime/protocol_server.ex
+  s_bbebff7174806f::t_73a43d99544339 1-44
+lib/edit_runtime/workflow.ex
+  s_706951c87ffc86::t_37784c531f82af 1-187
+mix.lock
+  s_bbebff7174806f::t_cc8d5d18b310e5 1-29
+package.json
+  s_bbebff7174806f::t_75c022a0400a8c 1
+pi/edit.ts
+  s_bbebff7174806f::t_ecb4841a60bb1f 1-138
+scripts/check-auth.sh
+  s_bbebff7174806f::t_bc4d7b0ad2bc82 1-9
+scripts/prove-local.sh
+  s_7410e04aafe3da::t_f3ccc83e393719 1-17
+test/fixture.test.ts
+  s_bbebff7174806f::t_9f4b42279b0345 1-6
+test/workflow_test.exs
+  s_bbebff7174806f::t_01a178b6d9ba49 1-121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "56054a00374c3c330426359cf1c4f4af44256fb9",
+  "prompts": {},
+  "sessions": {
+    "s_706951c87ffc86": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a0b907-dcf1-7437-b485-5c1b93fdb152",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Jordan Coeyman <jcoeyman@cloudflare.com>"
+    },
+    "s_7410e04aafe3da": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a010c5-b200-71a3-933e-bf8a794b4e87",
+        "model": "deepseek-v4-pro"
+      },
+      "human_author": "Jordan Coeyman <jcoeyman@cloudflare.com>"
+    },
+    "s_bbebff7174806f": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a0a078-2abb-7221-a035-eb0f8a0fb6a0",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Jordan Coeyman <jcoeyman@cloudflare.com>"
+    }
+  }
+}
