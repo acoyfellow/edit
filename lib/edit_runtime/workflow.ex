@@ -41,25 +41,37 @@ defmodule EditRuntime.WorkflowAgent do
   def plan(request, approval) do
     agent = new()
 
-    {agent, []} =
-      cmd(
-        agent,
-        {EditRuntime.PlanAction,
-         %{request: Jason.encode!(request), approval: Jason.encode!(approval)}}
-      )
-
-    agent.state.plan
+    case cmd(
+           agent,
+           {EditRuntime.PlanAction,
+            %{request: Jason.encode!(request), approval: Jason.encode!(approval)}}
+         ) do
+      {%{state: %{plan: plan}}, []} when map_size(plan) > 0 -> {:ok, plan}
+      {_agent, directives} -> {:error, directive_message(directives)}
+    end
   end
+
+  defp directive_message(directives) do
+    directives
+    |> Enum.find_value("plan failed", fn
+      %Jido.Agent.Directive.Error{error: error} -> action_message(error)
+      _ -> nil
+    end)
+  end
+
+  defp action_message(%{details: %{reason: %{message: message}}}), do: message
+  defp action_message(%{message: message}), do: message
+  defp action_message(other), do: inspect(other)
 end
 
 defmodule EditRuntime.Workflow do
   def run(%{"request" => request, "approval" => approval}) do
     with {:ok, plan} <- safe_plan(request, approval),
          :ok <- authorize(plan),
+         {:ok, writes} <- prepare(plan),
          {:ok, judgment} <- judge(plan),
-         {:ok, effects} <- execute(plan),
-         {:ok, verification} <-
-           verify(request_value(plan, "verification"), request_value(plan, "workspace_root")) do
+         {:ok, effects} <- apply_writes(writes),
+         {:ok, verification} <- verify_or_restore(plan, writes) do
       receipt(plan, "succeeded", effects, verification, judgment)
     else
       {:error, reason} ->
@@ -70,45 +82,93 @@ defmodule EditRuntime.Workflow do
   def run(_request), do: %{status: "failed", error: "request and approval are required"}
 
   defp safe_plan(request, approval) do
-    {:ok, EditRuntime.WorkflowAgent.plan(request, approval)}
+    EditRuntime.WorkflowAgent.plan(request, approval)
   rescue
     error -> {:error, Exception.message(error)}
   end
 
-  defp execute(plan) do
+  defp prepare(plan) do
     request = plan[:request] || plan["request"]
-    root = Path.expand(request["workspace_root"] || request["workspaceRoot"])
+    root = workspace_root(request)
 
-    Enum.reduce_while(request["operations"] || [], {:ok, []}, fn operation, {:ok, effects} ->
-      case operation["type"] do
-        "replace_text" ->
-          path = safe_path(root, operation["path"])
+    with {:ok, _} <- safe_path(root, verification_path(request)) do
+      Enum.reduce_while(request["operations"] || [], {:ok, []}, fn operation, {:ok, writes} ->
+        case prepare_operation(root, operation) do
+          {:ok, write} -> {:cont, {:ok, writes ++ [write]}}
+          {:error, reason} -> {:halt, {:error, reason}}
+        end
+      end)
+    end
+  end
 
-          with {:ok, old} <- File.read(path), true <- old == operation["expected"] do
-            File.write!(path, operation["replacement"])
-            {:cont, {:ok, [%{type: "write", path: operation["path"]} | effects]}}
-          else
-            false -> {:halt, {:error, "expected content did not match"}}
-            {:error, reason} -> {:halt, {:error, format_error(reason)}}
-          end
+  defp prepare_operation(root, %{"type" => "replace_text"} = operation) do
+    with {:ok, path} <- safe_path(root, operation["path"]),
+         {:ok, current} <- read_file(path),
+         true <- current == operation["expected"] || {:error, "expected content did not match"} do
+      {:ok,
+       %{
+         path: path,
+         relative: operation["path"],
+         original: current,
+         replacement: operation["replacement"]
+       }}
+    end
+  end
 
-        _ ->
-          {:halt, {:error, "unsupported operation"}}
-      end
-    end)
+  defp prepare_operation(_root, _operation), do: {:error, "unsupported operation"}
+
+  defp apply_writes(writes) do
+    Enum.each(writes, fn write -> File.write!(write.path, write.replacement) end)
+    {:ok, Enum.map(writes, fn write -> %{type: "write", path: write.relative} end)}
   rescue
-    error -> {:error, Exception.message(error)}
+    error ->
+      restore(writes)
+      {:error, Exception.message(error)}
+  end
+
+  defp verify_or_restore(plan, writes) do
+    request = plan[:request] || plan["request"]
+
+    case verify(request["verification"], workspace_root(request)) do
+      {:ok, verification} ->
+        {:ok, verification}
+
+      {:error, reason} ->
+        restore(writes)
+        {:error, reason}
+    end
+  end
+
+  defp restore(writes) do
+    Enum.each(writes, fn write -> File.write!(write.path, write.original) end)
   end
 
   defp verify(%{"type" => "file_equals", "path" => path, "expected" => expected}, root) do
-    case File.read(safe_path(Path.expand(root), path)) do
-      {:ok, ^expected} -> {:ok, %{status: "passed", type: "file_equals", path: path}}
-      {:ok, _} -> {:error, "verification content mismatch"}
-      {:error, reason} -> {:error, format_error(reason)}
+    with {:ok, full_path} <- safe_path(root, path),
+         {:ok, content} <- read_file(full_path) do
+      if content == expected do
+        {:ok, %{status: "passed", type: "file_equals", path: path}}
+      else
+        {:error, "verification content mismatch"}
+      end
     end
   end
 
   defp verify(_, _), do: {:error, "unsupported verification"}
+
+  defp verification_path(%{"verification" => %{"path" => path}}), do: path
+  defp verification_path(_), do: "."
+
+  defp read_file(path) do
+    case File.read(path) do
+      {:ok, content} -> {:ok, content}
+      {:error, reason} -> {:error, format_error(reason)}
+    end
+  end
+
+  defp workspace_root(request) do
+    Path.expand(request["workspace_root"] || request["workspaceRoot"])
+  end
 
   defp authorize(plan) do
     request = plan[:request] || plan["request"]
@@ -166,22 +226,33 @@ defmodule EditRuntime.Workflow do
   defp format_error(reason) when is_exception(reason), do: Exception.message(reason)
   defp format_error(reason), do: inspect(reason)
 
+  defp safe_path(_root, relative) when not is_binary(relative), do: {:error, "path is required"}
+
   defp safe_path(root, relative) do
     expanded = Path.expand(relative, root)
-    relative_path = Path.relative_to(expanded, root)
 
-    if relative_path == ".." or String.starts_with?(relative_path, "../") do
-      raise("path escapes workspace")
+    cond do
+      Path.type(relative) == :absolute ->
+        {:error, "path escapes workspace"}
+
+      expanded != root and not String.starts_with?(expanded, root <> "/") ->
+        {:error, "path escapes workspace"}
+
+      symlink_in_path?(root, expanded) ->
+        {:error, "path crosses a symlink"}
+
+      true ->
+        {:ok, expanded}
     end
+  end
 
+  defp symlink_in_path?(root, expanded) do
     expanded
+    |> Path.relative_to(root)
+    |> Path.split()
+    |> Enum.scan(root, &Path.join(&2, &1))
+    |> Enum.any?(fn component ->
+      match?({:ok, %File.Stat{type: :symlink}}, File.lstat(component))
+    end)
   end
-
-  defp request_value(plan, key) do
-    request = plan[:request] || plan["request"]
-    request[key] || request[camelize_key(key)]
-  end
-
-  defp camelize_key("workspace_root"), do: "workspaceRoot"
-  defp camelize_key(key), do: key
 end

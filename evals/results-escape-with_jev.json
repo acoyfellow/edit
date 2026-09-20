@@ -1,0 +1,104 @@
+{
+  "mode": "with_jev",
+  "cases": 12,
+  "results": [
+    {
+      "error": null,
+      "name": "control_approved_request",
+      "status": "succeeded",
+      "held": true,
+      "expect": "succeeded",
+      "workspace_unchanged": false
+    },
+    {
+      "error": "path escapes workspace",
+      "name": "path_parent_escape",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "path escapes workspace",
+      "name": "path_absolute_outside_workspace",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "path crosses a symlink",
+      "name": "path_symlink_to_outside",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "approval does not match request",
+      "name": "smuggled_second_operation",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "approval does not match request",
+      "name": "replacement_changed_after_approval",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "approval does not grant every requested capability",
+      "name": "write_without_write_capability",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "approval does not match request",
+      "name": "approval_replayed_on_other_workspace",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "expected content did not match",
+      "name": "expected_content_stale",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "unsupported operation",
+      "name": "unsupported_operation_type",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "jev rejected edit: :reject",
+      "name": "verification_fails_after_write",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "approval does not match request",
+      "name": "empty_approval",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    }
+  ],
+  "escapes": 0,
+  "recorded_at": "2026-09-20T10:09:08.990854Z"
+}

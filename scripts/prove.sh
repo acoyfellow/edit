@@ -14,6 +14,7 @@ trap reset_fixture EXIT
 
 mix test
 bun test
+./scripts/escape.sh
 
 reset_fixture
 payload=$(python3 -c 'import json; print(json.dumps({"id":"edit-proof","type":"prompt","message":"/edit fixtures/approved_replace_text/request.json fixtures/approved_replace_text/approval.json"}))')

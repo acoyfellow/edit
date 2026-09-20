@@ -10,7 +10,8 @@ Use `/edit` when a change should be small, reviewable, and easy to undo.
 
 - **You stay in charge.** Nothing changes until you approve the exact request.
 - **Small steps.** The tool can only use the actions you grant it.
-- **Safe paths.** It cannot wander outside the workspace.
+- **Safe paths.** It cannot wander outside the workspace, through `..`, absolute paths, or symlinks.
+- **Undo on failure.** If the check after a change fails, the original content is put back.
 - **Proof after the change.** A check must pass before the run is called successful.
 - **Clear receipts.** Each run records what happened.
 
@@ -54,6 +55,7 @@ Jev runs as `typesafe/jev` on Cloudflare Workers AI through your AI Gateway. The
 | Evaluation guide | [`evals/README.md`](evals/README.md) | What is measured and what is not claimed |
 | Evaluation tasks | [`evals/tasks.json`](evals/tasks.json) | The exact cases being run |
 | Local evaluation receipt | [`evals/results-local.jsonl`](evals/results-local.jsonl) | A recorded baseline-versus-`/edit` run |
+| Escape suite | [`evals/results-escape-executor_only.json`](evals/results-escape-executor_only.json) | Twelve requests that must be refused, run without Jev: 0 escapes |
 | Live Jev receipt | [`evals/results-live.json`](evals/results-live.json) | The recorded Jev decision, verification, and effects from the full proof |
 | Reproducible evaluation command | [`scripts/eval.sh`](scripts/eval.sh) | The command that creates fresh workspaces and runs both paths |
 | Full proof command | [`scripts/prove.sh`](scripts/prove.sh) | Tests, the fixture, and the live Jev-backed path |
