@@ -14,4 +14,4 @@ grep -q '"message":"edit: succeeded"' /tmp/edit-local-proof-rpc.jsonl
 test "$(cat fixtures/approved_replace_text/workspace/note.txt)" = published
 printf 'draft\n' > fixtures/approved_replace_text/workspace/note.txt
 grep -q '"jev":{"status":"blocked_missing_credentials"}' <(cd "$PWD" && mix run -e 'r=File.read!("fixtures/approved_replace_text/request.json")|>Jason.decode!(); a=File.read!("fixtures/approved_replace_text/approval.json")|>Jason.decode!(); IO.puts(Jason.encode!(EditRuntime.Workflow.run(%{"request"=>r,"approval"=>a})))')
-printf '%s\n' 'local edit proof passed; Jev live proof remains blocked on provider credentials'
+printf '%s\n' 'local edit proof passed without a Jev provider; run scripts/prove.sh for the live judgment'

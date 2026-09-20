@@ -4,17 +4,17 @@ defmodule EditRuntime.WorkflowTest do
   setup do
     saved = %{
       typesafe: System.get_env("TYPESAFE_API_KEY"),
-      cloudflare: System.get_env("CLOUDFLARE_API_TOKEN"),
+      cloudflare: System.get_env("AI_GATEWAY_TOKEN"),
       account: System.get_env("CLOUDFLARE_ACCOUNT_ID")
     }
 
     System.delete_env("TYPESAFE_API_KEY")
-    System.delete_env("CLOUDFLARE_API_TOKEN")
+    System.delete_env("AI_GATEWAY_TOKEN")
     System.delete_env("CLOUDFLARE_ACCOUNT_ID")
 
     on_exit(fn ->
       restore_env("TYPESAFE_API_KEY", saved.typesafe)
-      restore_env("CLOUDFLARE_API_TOKEN", saved.cloudflare)
+      restore_env("AI_GATEWAY_TOKEN", saved.cloudflare)
       restore_env("CLOUDFLARE_ACCOUNT_ID", saved.account)
     end)
   end

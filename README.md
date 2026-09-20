@@ -35,10 +35,13 @@ bun test
 The full check also asks Jev to review the proposed change:
 
 ```sh
+export AI_GATEWAY_TOKEN=...
+export CLOUDFLARE_ACCOUNT_ID=...
+export CLOUDFLARE_AI_GATEWAY_ID=default
 ./scripts/prove.sh
 ```
 
-That live check needs an approved Jev provider. If the provider is unavailable, `/edit` stops instead of pretending that a review happened.
+Jev runs as `typesafe/jev` on Cloudflare Workers AI through your AI Gateway. The token stays in your shell environment; it is never written to source, logs, or output. If the provider is unavailable, `/edit` stops instead of pretending that a review happened.
 
 ## What it does not do
 
@@ -51,7 +54,7 @@ That live check needs an approved Jev provider. If the provider is unavailable, 
 | Evaluation guide | [`evals/README.md`](evals/README.md) | What is measured and what is not claimed |
 | Evaluation tasks | [`evals/tasks.json`](evals/tasks.json) | The exact cases being run |
 | Local evaluation receipt | [`evals/results-local.jsonl`](evals/results-local.jsonl) | A recorded baseline-versus-`/edit` run |
-| Live evaluation receipt | [`evals/results-live-blocked.json`](evals/results-live-blocked.json) | A blocked live-provider result, without fake output |
+| Live Jev receipt | [`evals/results-live.json`](evals/results-live.json) | The recorded Jev decision, verification, and effects from the full proof |
 | Reproducible evaluation command | [`scripts/eval.sh`](scripts/eval.sh) | The command that creates fresh workspaces and runs both paths |
 | Full proof command | [`scripts/prove.sh`](scripts/prove.sh) | Tests, the fixture, and the live Jev-backed path |
 
@@ -74,4 +77,4 @@ The evaluation is deliberately modest: the current fixture checks mechanics, not
 
 ## Status
 
-The local checks pass. The live Jev check is published as blocked because the current provider route returned `403`. See [`evals/results-live-blocked.json`](evals/results-live-blocked.json).
+All checks pass: tests, the headless Pi run, the bounded file change, and the live Jev judgment through Cloudflare AI Gateway. See [`evals/README.md`](evals/README.md) for the results table.

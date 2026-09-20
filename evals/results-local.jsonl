@@ -1,2 +1,8 @@
-{"mode":"baseline","success":true,"elapsed_ms":9049,"content":"published"}
-{"mode":"edit","success":true,"elapsed_ms":5092,"content":"published"}
+{"run":1,"mode":"baseline","success":false,"elapsed_ms":28990,"content":"draft"}
+{"run":1,"mode":"edit","success":true,"elapsed_ms":11871,"content":"published"}
+{"run":2,"mode":"baseline","success":false,"elapsed_ms":4578,"content":"draft"}
+{"run":2,"mode":"edit","success":true,"elapsed_ms":6637,"content":"published"}
+{"run":3,"mode":"baseline","success":false,"elapsed_ms":4679,"content":"draft"}
+{"run":3,"mode":"edit","success":true,"elapsed_ms":9350,"content":"published"}
+{"run":4,"mode":"baseline","success":true,"elapsed_ms":9494,"content":"published"}
+{"run":4,"mode":"edit","success":true,"elapsed_ms":9083,"content":"published"}

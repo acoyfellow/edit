@@ -32,7 +32,13 @@ approval = {"request_digest": hashlib.sha256(raw).hexdigest(), "capabilities": r
 (root / "approval.json").write_text(json.dumps(approval))
 PY
     payload='{"id":"edit-eval","type":"prompt","message":"/edit request.json approval.json"}'
-    (cd "$root/$mode" && printf '%s\n' "$payload" | { cat; sleep 5; } | EDIT_RUNTIME_DIR="$project_root" pi --mode rpc --no-session --no-extensions -e "$HOME/.pi/agent/extensions/edit.ts" --no-tools) > "$root/$mode.out" 2>&1
+    (cd "$root/$mode" && {
+      printf '%s\n' "$payload"
+      for _ in $(seq 1 90); do
+        grep -q '"message":"edit: ' "$root/$mode.out" 2>/dev/null && break
+        sleep 1
+      done
+    } | EDIT_RUNTIME_DIR="$project_root" pi --mode rpc --no-session --no-extensions -e "$HOME/.pi/agent/extensions/edit.ts" --no-tools) > "$root/$mode.out" 2>&1
   fi
 
   local ended=$(date +%s%N)

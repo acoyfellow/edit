@@ -1,0 +1,22 @@
+{
+  "status": "succeeded",
+  "provider": "cloudflare-ai-gateway",
+  "verification": {
+    "status": "passed",
+    "type": "file_equals",
+    "path": "note.txt"
+  },
+  "jev": {
+    "status": "approved",
+    "decision": "approve"
+  },
+  "effects": [
+    {
+      "type": "write",
+      "path": "note.txt"
+    }
+  ],
+  "request_digest": "726d3a97a3988e1c3219d944cf1d98ad0c760f55b99b5ece635e83cb08473076",
+  "recorded_at": "2026-09-20T09:16:06.914424Z",
+  "model": "typesafe/jev"
+}

@@ -64,7 +64,11 @@ export default function (pi: ExtensionAPI) {
       },
       ctx.cwd,
     );
-    ctx.ui.notify(`edit: ${result.status}`, result.status === 'succeeded' ? 'info' : 'error');
+    const jev = result.jev as { status?: string } | undefined;
+    ctx.ui.notify(
+      `edit: ${result.status} (jev: ${jev?.status ?? 'not_run'})`,
+      result.status === 'succeeded' ? 'info' : 'error',
+    );
   };
 
   pi.registerCommand('edit', {
@@ -100,8 +104,9 @@ async function runEdit(input: EditInput, cwd: string): Promise<Record<string, un
         MIX_HOME: process.env.MIX_HOME ?? `${process.env.HOME ?? ''}/.mix`,
         HEX_HOME: process.env.HEX_HOME ?? `${process.env.HOME ?? ''}/.hex`,
         TYPESAFE_API_KEY: process.env.TYPESAFE_API_KEY ?? '',
-        CLOUDFLARE_API_TOKEN: process.env.CLOUDFLARE_API_TOKEN ?? '',
+        AI_GATEWAY_TOKEN: process.env.AI_GATEWAY_TOKEN ?? '',
         CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID ?? '',
+        CLOUDFLARE_AI_GATEWAY_ID: process.env.CLOUDFLARE_AI_GATEWAY_ID ?? '',
       },
       stdio: ['pipe', 'pipe', 'pipe'],
     });

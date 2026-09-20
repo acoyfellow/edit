@@ -1,8 +1,0 @@
-{
-  "status": "blocked",
-  "provider": "cloudflare",
-  "reason": "Jev request failed with HTTP 403",
-  "model_judgment": "not_observed",
-  "code_proof": "passed",
-  "note": "Wrangler authentication was available, but the OAuth-derived credential was not authorized for the Jev Workers AI request. No model output was substituted."
-}

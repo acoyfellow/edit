@@ -158,7 +158,7 @@ defmodule EditRuntime.Workflow do
 
   defp jev_credentials_available? do
     System.get_env("TYPESAFE_API_KEY") not in [nil, ""] or
-      (System.get_env("CLOUDFLARE_API_TOKEN") not in [nil, ""] and
+      (System.get_env("AI_GATEWAY_TOKEN") not in [nil, ""] and
          System.get_env("CLOUDFLARE_ACCOUNT_ID") not in [nil, ""])
   end
 
