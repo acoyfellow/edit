@@ -1,0 +1,7 @@
+{
+  "capabilities": [
+    "workspace.read",
+    "workspace.write"
+  ],
+  "request_digest": "85b236c32d7cf36a3a4208139ad37ed606d700e1a80653efe3a9bd355678617b"
+}

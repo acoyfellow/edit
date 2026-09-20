@@ -68,6 +68,7 @@ defmodule EditRuntime.Workflow do
   def run(%{"request" => request, "approval" => approval}) do
     with {:ok, plan} <- safe_plan(request, approval),
          :ok <- authorize(plan),
+         :ok <- authorize_folders(plan),
          {:ok, writes} <- prepare(plan),
          {:ok, judgment} <- judge(plan),
          {:ok, effects} <- apply_writes(writes),
@@ -183,6 +184,62 @@ defmodule EditRuntime.Workflow do
     end
   end
 
+  defp authorize_folders(plan) do
+    request = plan[:request] || plan["request"]
+    approval = plan[:approval] || plan["approval"]
+    permissions = request["permissions"] || %{}
+
+    cond do
+      permissions == %{} ->
+        {:error, "permissions are required"}
+
+      Map.has_key?(approval, "permissions") and approval["permissions"] != permissions ->
+        {:error, "approval permissions do not match request"}
+
+      true ->
+        Enum.reduce_while(request["operations"] || [], :ok, fn operation, :ok ->
+          case folder_allows?(permissions, operation) do
+            :ok -> {:cont, :ok}
+            {:error, reason} -> {:halt, {:error, reason}}
+          end
+        end)
+    end
+  end
+
+  defp folder_allows?(permissions, operation) do
+    path = operation["path"] || ""
+    command = operation["type"]
+    folder = folder_for(path)
+    allowed = allowed_commands(permissions, folder, path)
+
+    if command in allowed do
+      :ok
+    else
+      {:error, "folder #{folder} does not allow #{command}"}
+    end
+  end
+
+  defp folder_for(path) do
+    case Path.dirname(path) do
+      "." -> "."
+      dir -> dir
+    end
+  end
+
+  defp allowed_commands(permissions, folder, path) do
+    permissions
+    |> Enum.filter(fn {granted_folder, _commands} ->
+      folder_covers?(granted_folder, folder, path)
+    end)
+    |> Enum.flat_map(fn {_folder, commands} -> List.wrap(commands) end)
+  end
+
+  defp folder_covers?(".", _folder, _path), do: true
+
+  defp folder_covers?(granted, folder, path) do
+    granted == folder or granted == path or String.starts_with?(path, granted <> "/")
+  end
+
   defp judge(plan) do
     if jev_credentials_available?() do
       case EditRuntime.Judgment.approve?(plan) do
@@ -241,9 +298,16 @@ defmodule EditRuntime.Workflow do
       symlink_in_path?(root, expanded) ->
         {:error, "path crosses a symlink"}
 
+      hard_link?(expanded) ->
+        {:error, "path has extra hard links"}
+
       true ->
         {:ok, expanded}
     end
+  end
+
+  defp hard_link?(path) do
+    match?({:ok, %File.Stat{links: links}} when links > 1, File.lstat(path))
   end
 
   defp symlink_in_path?(root, expanded) do

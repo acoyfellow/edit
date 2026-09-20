@@ -8,5 +8,8 @@ env -u AI_GATEWAY_TOKEN -u CLOUDFLARE_ACCOUNT_ID -u TYPESAFE_API_KEY mix run --n
 
 if [[ -n "${TYPESAFE_API_KEY:-}" || ( -n "${AI_GATEWAY_TOKEN:-}" && -n "${CLOUDFLARE_ACCOUNT_ID:-}" ) ]]; then
   printf '\n%s\n' '== escape suite: with Jev'
-  mix run --no-start evals/escape_suite.exs 2>/dev/null
+  mix run --no-start evals/escape_suite.exs 2>/dev/null || {
+    printf '%s\n' 'Jev escape suite failed; leaving the last recorded with_jev receipt in place' >&2
+    exit 1
+  }
 fi

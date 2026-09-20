@@ -25,6 +25,7 @@ request = {
     "operations": [{"type": "replace_text", "path": "note.txt", "expected": "draft\n", "replacement": "published\n"}],
     "verification": {"type": "file_equals", "path": "note.txt", "expected": "published\n"},
     "capabilities": ["workspace.read", "workspace.write"],
+    "permissions": {".": ["replace_text"]},
 }
 raw = json.dumps(request, sort_keys=True, separators=(",", ":")).encode()
 approval = {"request_digest": hashlib.sha256(raw).hexdigest(), "capabilities": request["capabilities"]}

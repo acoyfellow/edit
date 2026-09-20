@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "workspace_root": "evals/tasks/test-change/workspace",
+  "operations": [
+    {
+      "type": "replace_text",
+      "path": "test/math_test.exs",
+      "expected": "defmodule MathTest do\n  use ExUnit.Case\n  test \"add\", do: assert Math.add(1, 2) == 4\nend\n",
+      "replacement": "defmodule MathTest do\n  use ExUnit.Case\n  test \"add\", do: assert Math.add(1, 2) == 3\nend\n"
+    }
+  ],
+  "verification": {
+    "type": "file_equals",
+    "path": "test/math_test.exs",
+    "expected": "defmodule MathTest do\n  use ExUnit.Case\n  test \"add\", do: assert Math.add(1, 2) == 3\nend\n"
+  },
+  "capabilities": [
+    "workspace.read",
+    "workspace.write"
+  ],
+  "permissions": {
+    "test": [
+      "replace_text"
+    ]
+  }
+}

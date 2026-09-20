@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "workspace_root": "evals/tasks/bug-fix/workspace",
+  "operations": [
+    {
+      "type": "replace_text",
+      "path": "lib/math.ex",
+      "expected": "defmodule Math do\n  def add(a, b), do: a - b\nend\n",
+      "replacement": "defmodule Math do\n  def add(a, b), do: a + b\nend\n"
+    }
+  ],
+  "verification": {
+    "type": "file_equals",
+    "path": "lib/math.ex",
+    "expected": "defmodule Math do\n  def add(a, b), do: a + b\nend\n"
+  },
+  "capabilities": [
+    "workspace.read",
+    "workspace.write"
+  ],
+  "permissions": {
+    "lib": [
+      "replace_text"
+    ]
+  }
+}

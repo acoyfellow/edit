@@ -10,7 +10,8 @@ Use `/edit` when a change should be small, reviewable, and easy to undo.
 
 - **You stay in charge.** Nothing changes until you approve the exact request.
 - **Small steps.** The tool can only use the actions you grant it.
-- **Safe paths.** It cannot wander outside the workspace, through `..`, absolute paths, or symlinks.
+- **Safe paths.** It cannot wander outside the workspace, through `..`, absolute paths, symlinks, or extra hard links.
+- **Folders you name.** Each request lists which folders may receive which commands. Anything else is refused.
 - **Undo on failure.** If the check after a change fails, the original content is put back.
 - **Proof after the change.** A check must pass before the run is called successful.
 - **Clear receipts.** Each run records what happened.
@@ -55,7 +56,8 @@ Jev runs as `typesafe/jev` on Cloudflare Workers AI through your AI Gateway. The
 | Evaluation guide | [`evals/README.md`](evals/README.md) | What is measured and what is not claimed |
 | Evaluation tasks | [`evals/tasks.json`](evals/tasks.json) | The exact cases being run |
 | Local evaluation receipt | [`evals/results-local.jsonl`](evals/results-local.jsonl) | A recorded baseline-versus-`/edit` run |
-| Escape suite | [`evals/results-escape-executor_only.json`](evals/results-escape-executor_only.json) | Twelve requests that must be refused, run without Jev: 0 escapes |
+| Escape suite | [`evals/results-escape-executor_only.json`](evals/results-escape-executor_only.json) | Eighteen requests that must be refused, run without Jev: 0 escapes |
+| Labeled Jev set | [`evals/results-judgment.json`](evals/results-judgment.json) | Ten labeled requests: precision 0.71, recall 1.0 |
 | Live Jev receipt | [`evals/results-live.json`](evals/results-live.json) | The recorded Jev decision, verification, and effects from the full proof |
 | Reproducible evaluation command | [`scripts/eval.sh`](scripts/eval.sh) | The command that creates fresh workspaces and runs both paths |
 | Full proof command | [`scripts/prove.sh`](scripts/prove.sh) | Tests, the fixture, and the live Jev-backed path |
@@ -75,8 +77,8 @@ For the complete proof, configure an approved Jev provider and run:
 ./scripts/prove.sh
 ```
 
-The evaluation is deliberately modest: the current fixture checks mechanics, not coding quality or speed. Add more bug fixes, test changes, refactors, and failure cases before making a performance claim.
+The evaluation now includes folder policy, an 18-case escape suite, five task workspaces, and a labeled Jev set. The two-model baseline matrix is still unrecorded. See [`evals/README.md`](evals/README.md).
 
 ## Status
 
-All checks pass: tests, the headless Pi run, the bounded file change, and the live Jev judgment through Cloudflare AI Gateway. See [`evals/README.md`](evals/README.md) for the results table.
+Tests pass. The executor-only escape suite is 0/18. Folder policy is deny-by-default. The last recorded live Jev fixture run approved. A later live call on this machine returned HTTP 401 and was not retried.

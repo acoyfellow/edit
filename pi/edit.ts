@@ -29,7 +29,11 @@ export default function (pi: ExtensionAPI) {
         return { content: [{ type: 'text', text: 'Edit not approved.' }], details: {}, isError: true };
       }
 
-      const approval = { request_digest: digest(request), capabilities: request.capabilities ?? [] };
+      const approval = {
+        request_digest: digest(request),
+        capabilities: request.capabilities ?? [],
+        permissions: request.permissions ?? {},
+      };
       const result = await runEdit({ request: JSON.stringify(request), approval: JSON.stringify(approval) }, ctx.cwd);
       return { content: [{ type: 'text', text: JSON.stringify(result) }], details: result, isError: result.status !== 'succeeded' };
     },

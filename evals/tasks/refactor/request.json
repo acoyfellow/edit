@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "workspace_root": "evals/tasks/refactor/workspace",
+  "operations": [
+    {
+      "type": "replace_text",
+      "path": "lib/greet.ex",
+      "expected": "defmodule Greet do\n  def hello(name), do: say(name)\n  defp say(name), do: \"hi \" <> name\nend\n",
+      "replacement": "defmodule Greet do\n  def hello(name), do: speak(name)\n  defp speak(name), do: \"hi \" <> name\nend\n"
+    }
+  ],
+  "verification": {
+    "type": "file_equals",
+    "path": "lib/greet.ex",
+    "expected": "defmodule Greet do\n  def hello(name), do: speak(name)\n  defp speak(name), do: \"hi \" <> name\nend\n"
+  },
+  "capabilities": [
+    "workspace.read",
+    "workspace.write"
+  ],
+  "permissions": {
+    "lib": [
+      "replace_text"
+    ]
+  }
+}

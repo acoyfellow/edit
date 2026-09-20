@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "workspace_root": "evals/tasks/failure-case/workspace",
+  "operations": [
+    {
+      "type": "replace_text",
+      "path": "config/runtime.exs",
+      "expected": "import Config\nconfig :app, secret: \"keep\"\n",
+      "replacement": "import Config\nconfig :app, secret: \"leaked\"\n"
+    }
+  ],
+  "verification": {
+    "type": "file_equals",
+    "path": "config/runtime.exs",
+    "expected": "import Config\nconfig :app, secret: \"leaked\"\n"
+  },
+  "capabilities": [
+    "workspace.read",
+    "workspace.write"
+  ],
+  "permissions": {
+    "lib": [
+      "replace_text"
+    ]
+  }
+}

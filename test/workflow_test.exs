@@ -41,7 +41,8 @@ defmodule EditRuntime.WorkflowTest do
         "path" => "note.txt",
         "expected" => "published\n"
       },
-      "capabilities" => ["workspace.read", "workspace.write"]
+      "capabilities" => ["workspace.read", "workspace.write"],
+      "permissions" => %{"." => ["replace_text"]}
     }
 
     approval = %{"request_digest" => digest(request), "capabilities" => request["capabilities"]}
@@ -68,7 +69,8 @@ defmodule EditRuntime.WorkflowTest do
           "replacement" => "published\n"
         }
       ],
-      "capabilities" => ["workspace.read", "workspace.write"]
+      "capabilities" => ["workspace.read", "workspace.write"],
+      "permissions" => %{"." => ["replace_text"]}
     }
 
     approval = %{"request_digest" => digest(request), "capabilities" => request["capabilities"]}
@@ -85,7 +87,8 @@ defmodule EditRuntime.WorkflowTest do
       "version" => 1,
       "workspace_root" => "/tmp",
       "operations" => [],
-      "capabilities" => ["workspace.write"]
+      "capabilities" => ["workspace.write"],
+      "permissions" => %{"." => ["replace_text"]}
     }
 
     approval = %{"request_digest" => digest(request), "capabilities" => ["workspace.read"]}
@@ -96,8 +99,43 @@ defmodule EditRuntime.WorkflowTest do
     assert receipt.error == "approval does not grant every requested capability"
   end
 
+  test "write outside granted folders is denied" do
+    root = Path.join(System.tmp_dir!(), "edit-workflow-#{System.unique_integer([:positive])}")
+    File.mkdir_p!(Path.join(root, "docs"))
+    File.write!(Path.join(root, "docs/readme.txt"), "draft\n")
+
+    request = %{
+      "version" => 1,
+      "workspace_root" => root,
+      "operations" => [
+        %{
+          "type" => "replace_text",
+          "path" => "docs/readme.txt",
+          "expected" => "draft\n",
+          "replacement" => "published\n"
+        }
+      ],
+      "capabilities" => ["workspace.read", "workspace.write"],
+      "permissions" => %{"src" => ["replace_text"]}
+    }
+
+    approval = %{"request_digest" => digest(request), "capabilities" => request["capabilities"]}
+    receipt = EditRuntime.Workflow.run(%{"request" => request, "approval" => approval})
+
+    assert receipt.status == "denied"
+    assert receipt.error == "folder docs does not allow replace_text"
+    assert File.read!(Path.join(root, "docs/readme.txt")) == "draft\n"
+    File.rm_rf!(root)
+  end
+
   test "changed request is denied by the approval digest" do
-    request = %{"version" => 1, "workspace_root" => "/tmp", "operations" => []}
+    request = %{
+      "version" => 1,
+      "workspace_root" => "/tmp",
+      "operations" => [],
+      "permissions" => %{}
+    }
+
     approval = %{"request_digest" => digest(request), "capabilities" => []}
     changed = Map.put(request, "operations", [%{"type" => "replace_text"}])
 
