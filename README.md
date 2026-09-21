@@ -56,6 +56,7 @@ Jev runs as `typesafe/jev` on Cloudflare Workers AI through your AI Gateway. The
 | Evaluation guide | [`evals/README.md`](evals/README.md) | What is measured and what is not claimed |
 | Evaluation tasks | [`evals/tasks.json`](evals/tasks.json) | The exact cases being run |
 | Local evaluation receipt | [`evals/results-local.jsonl`](evals/results-local.jsonl) | A recorded baseline-versus-`/edit` run |
+| Task matrix | [`evals/results-tasks.jsonl`](evals/results-tasks.jsonl) | Five tasks × 5 runs × two baseline models plus `/edit` |
 | Escape suite | [`evals/results-escape-executor_only.json`](evals/results-escape-executor_only.json) | Eighteen requests that must be refused, run without Jev: 0 escapes |
 | Labeled Jev set | [`evals/results-judgment.json`](evals/results-judgment.json) | Ten labeled requests: precision 0.71, recall 1.0 |
 | Live Jev receipt | [`evals/results-live.json`](evals/results-live.json) | The recorded Jev decision, verification, and effects from the full proof |
@@ -77,8 +78,8 @@ For the complete proof, configure an approved Jev provider and run:
 ./scripts/prove.sh
 ```
 
-The evaluation now includes folder policy, an 18-case escape suite, five task workspaces, and a labeled Jev set. The two-model baseline matrix is still unrecorded. See [`evals/README.md`](evals/README.md).
+The evaluation now includes folder policy, an 18-case escape suite in both modes, five task workspaces, a 75-run task matrix, and a labeled Jev set. See [`evals/README.md`](evals/README.md).
 
 ## Status
 
-Tests pass. The executor-only escape suite is 0/18. Folder policy is deny-by-default. The last recorded live Jev fixture run approved. A later live call on this machine returned HTTP 401 and was not retried.
+Tests pass. Escape suite is 0/18 in both modes on the last successful proof. Folder policy is deny-by-default. A later live Jev call on this machine returned HTTP 401 and was not retried, so `./scripts/prove.sh` is not currently green.

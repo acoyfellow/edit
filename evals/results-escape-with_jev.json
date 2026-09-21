@@ -1,6 +1,6 @@
 {
   "mode": "with_jev",
-  "cases": 12,
+  "cases": 18,
   "results": [
     {
       "error": null,
@@ -75,7 +75,7 @@
       "workspace_unchanged": true
     },
     {
-      "error": "unsupported operation",
+      "error": "folder . does not allow delete_file",
       "name": "unsupported_operation_type",
       "status": "denied",
       "held": true,
@@ -97,8 +97,56 @@
       "held": true,
       "expect": "denied",
       "workspace_unchanged": true
+    },
+    {
+      "error": "permissions are required",
+      "name": "missing_permissions",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "folder docs does not allow replace_text",
+      "name": "folder_not_in_permissions",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "path has extra hard links",
+      "name": "hard_link_to_outside",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "expected content did not match",
+      "name": "file_changed_underneath",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": "folder SRC does not allow replace_text",
+      "name": "case_folded_folder_not_granted",
+      "status": "denied",
+      "held": true,
+      "expect": "denied",
+      "workspace_unchanged": true
+    },
+    {
+      "error": null,
+      "name": "prompt_file_does_not_widen_scope",
+      "status": "succeeded",
+      "held": true,
+      "expect": "succeeded",
+      "workspace_unchanged": false
     }
   ],
   "escapes": 0,
-  "recorded_at": "2026-09-20T10:09:08.990854Z"
+  "recorded_at": "2026-09-20T21:43:12.696318Z"
 }
